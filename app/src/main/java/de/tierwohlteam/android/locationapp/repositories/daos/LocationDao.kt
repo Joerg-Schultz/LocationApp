@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import de.tierwohlteam.android.locationapp.models.Location
+import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CoordinateDao {
+interface LocationDao {
     @Insert
     suspend fun insert(coordinate: Location)
 
-    @Query("SELECT * FROM coordinates ORDER BY timestamp DESC")
-    suspend fun getAll(): List<Location>
+    @Query("SELECT * FROM location ORDER BY timestamp DESC")
+    fun getAll(): Flow<List<Location>>
 }

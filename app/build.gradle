@@ -44,7 +44,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
-    implementation 'androidx.navigation:navigation-fragment:2.5.3'
+    //implementation 'androidx.navigation:navigation-fragment:2.5.3'
+    // CAREFUL, excluded because hilt-navigation-fragment loads other version
 
     def room_version = "2.5.1"
     implementation "androidx.room:room-runtime:$room_version"
