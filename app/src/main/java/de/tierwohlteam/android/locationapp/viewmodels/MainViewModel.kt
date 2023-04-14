@@ -17,7 +17,7 @@ class MainViewModel @Inject constructor(
 
     private val _insertLocationFlow: MutableSharedFlow<Resource<Boolean>> = MutableSharedFlow()
     val insertLocationFlow = _insertLocationFlow as SharedFlow<Resource<Boolean>>
-    val blaTest = 5
+
     var allLocations: StateFlow<Resource<List<Location>>> = repository.allLocations.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -28,7 +28,8 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 for (i in 1..10) {
-                    val location = Location(x = 1.0 + i, y = 2.0 + i, timestamp = i.toLong())
+                    val location = Location(x = 1.0 + i * 20, y = 2.0 + i * 10,
+                        timestamp = i.toLong() * 500)
                     repository.insertLocation(location)
                 }
                 _insertLocationFlow.emit(Resource.success(true))
