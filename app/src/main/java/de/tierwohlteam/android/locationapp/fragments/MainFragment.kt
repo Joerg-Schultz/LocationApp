@@ -8,11 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import de.tierwohlteam.android.locationapp.R
 import de.tierwohlteam.android.locationapp.databinding.FragmentMainBinding
+import de.tierwohlteam.android.locationapp.others.Status
 import de.tierwohlteam.android.locationapp.viewmodels.MainViewModel
+import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainFragment : Fragment() {
     private var _binding: FragmentMainBinding? = null
 
@@ -21,7 +27,7 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    private val ratingViewModel: MainViewModel by activityViewModels()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,12 +41,19 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        subscribeToObservers()
+
+        binding.btnRecord.setOnClickListener {
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.record()
+            }
+        }
+
         binding.imageView2.setImageResource(R.drawable.roedelsee)
         binding.circleView.bringToFront()
         val animator = ValueAnimator.ofFloat(0f, 1f)
-        //binding.circleView.setCircle(200f, 200f, 50f)
 
-        binding.startButton.setOnClickListener {
+        binding.btnReplay.setOnClickListener {
             val startX = 100f
             val startY = 100f
             val endX = 250f
@@ -66,4 +79,34 @@ class MainFragment : Fragment() {
         _binding = null
     }
 
+    private fun subscribeToObservers() {
+        //Did the insert work?
+        lifecycleScope.launch {
+           viewModel.insertLocationFlow.collect {
+                when (it.status) {
+                    Status.ERROR -> {
+                        Snackbar.make(
+                            binding.root,
+                            it.message ?: "Insert Error",
+                            Snackbar.LENGTH_LONG
+                        ).setAnchorView(R.id.btn_record)
+                            .show()
+                    }
+
+                    Status.SUCCESS -> {
+                        Snackbar.make(
+                            binding.root,
+                            "Locations gespeichert",
+                            //resources.getString(R.string.saved_rating),
+                            Snackbar.LENGTH_LONG
+                        ).setAnchorView(R.id.btn_record)
+                            .show()
+                    }
+
+                    else -> { //* NO-OP *//*
+                    }
+                }
+            }
+        }
+    }
 }

@@ -13,12 +13,12 @@
             android:layout_height="0dp"
             android:layout_gravity="center" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/start_button"/>
+            app:layout_constraintBottom_toTopOf="@+id/btn_replay"/>
 
     <Button
-            android:text="Move"
+            android:text="Replay"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:id="@+id/start_button"
+            android:layout_height="wrap_content" android:id="@+id/btn_replay"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"/>
     <ImageView
             android:src="@drawable/roedelsee"
@@ -27,4 +27,9 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"/>
+    <Button
+            android:text="Record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/btn_record"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
