@@ -9,6 +9,7 @@ import de.tierwohlteam.android.locationapp.repositories.LocationAppRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -18,18 +19,26 @@ class MainViewModel @Inject constructor(
     private val _insertLocationFlow: MutableSharedFlow<Resource<Boolean>> = MutableSharedFlow()
     val insertLocationFlow = _insertLocationFlow as SharedFlow<Resource<Boolean>>
 
+    private val _getLocationsFlow: MutableSharedFlow<Resource<List<Location>>> = MutableSharedFlow()
+    val getLocationFlow = _getLocationsFlow as SharedFlow<Resource<List<Location>>>
+
     var allLocations: StateFlow<Resource<List<Location>>> = repository.allLocations.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = Resource.loading(emptyList())
     )
 
+
     suspend fun record() {
         viewModelScope.launch {
             try {
+                repository.deleteLocations();
+                var timeStamp = 0L
                 for (i in 1..10) {
-                    val location = Location(x = 1.0 + i * 20, y = 2.0 + i * 10,
-                        timestamp = i.toLong() * 500)
+                    timeStamp += i * Random.nextLong(200, 500)
+                    val location = Location(
+                        x = (i * 50).toDouble(), y = (i * 100).toDouble(),
+                        timestamp = timeStamp)
                     repository.insertLocation(location)
                 }
                 _insertLocationFlow.emit(Resource.success(true))
@@ -38,4 +47,8 @@ class MainViewModel @Inject constructor(
             }
         }
     }
+
+    suspend fun getLocations(): List<Location> =
+        repository.getLocations()
+
 }

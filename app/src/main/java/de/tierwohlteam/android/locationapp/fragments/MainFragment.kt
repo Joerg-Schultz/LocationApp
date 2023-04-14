@@ -1,5 +1,8 @@
 package de.tierwohlteam.android.locationapp.fragments
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.Log
@@ -7,7 +10,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -51,24 +53,31 @@ class MainFragment : Fragment() {
 
         binding.imageView2.setImageResource(R.drawable.roedelsee)
         binding.circleView.bringToFront()
-        val animator = ValueAnimator.ofFloat(0f, 1f)
 
         binding.btnReplay.setOnClickListener {
-            val startX = 100f
-            val startY = 100f
-            val endX = 250f
-            val endY = 500f
-            animator.apply {
-                setFloatValues(0f, 1f)
-                duration = 1000
-                addUpdateListener { animation ->
-                    val fraction = animation.animatedFraction
-                    val x = startX + (endX - startX) * fraction
-                    val y = startY + (endY - startY) * fraction
-                    binding.circleView.setCircle(x, y,50f)
-                    Log.d("CIRCLE", "Moving $x, $y")
+            lifecycleScope.launch {
+                val locationList = viewModel.getLocations().toMutableList()
+                if (locationList.isNotEmpty()) {
+                    val animatorList = mutableListOf<Animator>()
+                    for (i in 0 until locationList.size - 1) {
+                        val startPoint = locationList[i]
+                        val endPoint = locationList[i + 1]
+                        val animator = ValueAnimator.ofFloat(0f, 1f)
+                        //val animator = ObjectAnimator.ofFloat(0f, 1f)
+                        animator.duration = endPoint.timestamp - startPoint.timestamp // Set the duration of each animation
+                        animator.addUpdateListener { valueAnimator ->
+                            val fraction = valueAnimator.animatedFraction
+                            val x = startPoint.x + fraction * (endPoint.x - startPoint.x)
+                            val y = startPoint.y + fraction * (endPoint.y - startPoint.y)
+                            // Update the position of the circle
+                            binding.circleView.setCircle(x.toFloat(), y.toFloat(),50f)
+                        }
+                        animatorList.add(animator)
+                    }
+                    val animatorSet = AnimatorSet()
+                    animatorSet.playSequentially(animatorList)
+                    animatorSet.start()
                 }
-                start()
             }
         }
 

@@ -21,6 +21,8 @@ class LocationAppRepository @Inject constructor(
      * @param[location] a new Rating
      */
     suspend fun insertLocation(location: Location) = locationDao.insert(location)
+    suspend fun getLocations(): List<Location> = locationDao.getLocations()
+    suspend fun deleteLocations() = locationDao.deleteLocations()
 
     /**
      * get all Ratings as Resource Flow
