@@ -87,6 +87,7 @@ class MainFragment : Fragment() {
                             binding.circleView.setCircle(x.toFloat(), y.toFloat(), 10f)
                             binding.tvXCoord.text = locationList[i].x.toString()
                             binding.tvYCoord.text = locationList[i].y.toString()
+                            binding.tvTimestamp.text = locationList[i].timestamp.toString()
                         }
                         animatorList.add(animator)
                     }
@@ -94,8 +95,6 @@ class MainFragment : Fragment() {
                     val animatorSet = AnimatorSet()
                     animatorSet.playSequentially(animatorList)
                     animatorSet.start()
-                    binding.tvXCoord.text = "X-Coord"
-                    binding.tvYCoord.text = "Y-Coord"
                 }
             }
         }
