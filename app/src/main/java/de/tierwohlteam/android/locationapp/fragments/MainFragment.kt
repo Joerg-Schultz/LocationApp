@@ -3,6 +3,8 @@ package de.tierwohlteam.android.locationapp.fragments
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
+import android.bluetooth.BluetoothDevice
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,11 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import de.tierwohlteam.android.locationapp.R
 import de.tierwohlteam.android.locationapp.databinding.FragmentMainBinding
 import de.tierwohlteam.android.locationapp.models.Location
+import de.tierwohlteam.android.locationapp.models.UWBListener
 import de.tierwohlteam.android.locationapp.others.Status
 import de.tierwohlteam.android.locationapp.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
@@ -135,5 +139,32 @@ class MainFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun connectDialog(context: Context) {
+        val uwbListener = UWBListener(viewModel.repository)
+        val pairedDevices = uwbListener.getPairedDevices()
+        var selectedDevice: BluetoothDevice? = pairedDevices.firstOrNull()
+        viewLifecycleOwner.lifecycleScope.launch {
+            uwbListener.connectionMessage.collect {
+                Snackbar.make(requireView(), it, Snackbar.LENGTH_LONG).show()
+            }
+        }
+        MaterialAlertDialogBuilder(context)
+            .setTitle(resources.getString(R.string.paired))
+            .setNeutralButton(resources.getString(R.string.cancel)) { dialog, which ->
+            }
+            .setPositiveButton(resources.getString(R.string.ok)) { dialog, which ->
+                selectedDevice?.let {
+                    viewModel.uwbListener = uwbListener
+                    lifecycleScope.launch {
+                        viewModel.uwbListener!!.startCommunication(it)
+                    }
+                }
+            }
+            .setSingleChoiceItems(pairedDevices.map { it.name } .toTypedArray(), 0) { dialog, which ->
+                selectedDevice = pairedDevices[which]
+            }
+            .show()
     }
 }

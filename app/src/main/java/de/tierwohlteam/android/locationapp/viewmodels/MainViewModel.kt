@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.tierwohlteam.android.locationapp.models.Location
+import de.tierwohlteam.android.locationapp.models.UWBListener
 import de.tierwohlteam.android.locationapp.others.Resource
 import de.tierwohlteam.android.locationapp.repositories.LocationAppRepository
 import kotlinx.coroutines.flow.*
@@ -13,9 +14,10 @@ import kotlin.random.Random
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: LocationAppRepository,
+    val repository: LocationAppRepository,
 ) : ViewModel() {
 
+    lateinit var uwbListener: UWBListener
     private val _insertLocationFlow: MutableSharedFlow<Resource<Boolean>> = MutableSharedFlow()
     val insertLocationFlow = _insertLocationFlow as SharedFlow<Resource<Boolean>>
 
