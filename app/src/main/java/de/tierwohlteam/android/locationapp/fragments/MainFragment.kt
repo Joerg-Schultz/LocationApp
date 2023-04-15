@@ -74,27 +74,36 @@ class MainFragment : Fragment() {
         binding.circleView.bringToFront()
 
         binding.btnReplay.setOnClickListener {
+            val smoothingFactor = 3
             lifecycleScope.launch {
                 val locationList = viewModel.getLocations()
                 if (locationList.isNotEmpty()) {
+                    // go over locationsList with a sliding window size 3.
+                    // Generate a new list with each location as average of the sliding window
+                    val smoothedLocations = locationList.windowed(smoothingFactor,1) { window ->
+                        val smoothedX = window.map { it.x }.average().toFloat()
+                        val smoothedY = window.map { it.y }.average().toFloat()
+                        val timestamp = window[1].timestamp
+                        Location(x= smoothedX, y=smoothedY, timestamp=timestamp)
+                    }
+
                     val scaleX = binding.imageView2.width / locationList.maxOf { it.x }
                     val scaleY = binding.imageView2.height / locationList.maxOf { it.y }
                     val startTime = locationList.minOf { it.timestamp }
                     Log.d("MainFragment", "scaleX: $scaleX, scaleY: $scaleY")
                     val animatorList = mutableListOf<Animator>()
-                    for (i in 0 until locationList.size - 1) {
-
+                    for (i in 0 until smoothedLocations.size - 1) {
                         // Get the start and end point of the animation
                         // scaled by the scale factors
                         val startPoint = Location(
-                            x = locationList[i].x * scaleX,
-                            y = locationList[i].y * scaleY,
-                            timestamp = locationList[i].timestamp
+                            x = smoothedLocations[i].x * scaleX,
+                            y = smoothedLocations[i].y * scaleY,
+                            timestamp = smoothedLocations[i].timestamp
                         )
                         val endPoint = Location(
-                            x = locationList[i + 1].x * scaleX,
-                            y = locationList[i + 1].y * scaleY,
-                            timestamp = locationList[i + 1].timestamp
+                            x = smoothedLocations[i + 1].x * scaleX,
+                            y = smoothedLocations[i + 1].y * scaleY,
+                            timestamp = smoothedLocations[i + 1].timestamp
                         )
                         val animator = ValueAnimator.ofFloat(0f, 1f)
                         animator.duration =
@@ -107,7 +116,12 @@ class MainFragment : Fragment() {
                             binding.circleView.setCircle(x.toFloat(), y.toFloat(), 10f)
                             binding.tvXCoord.text = locationList[i].x.toString()
                             binding.tvYCoord.text = locationList[i].y.toString()
-                            binding.tvTimestamp.text = (locationList[i].timestamp - startTime).toString()
+                            val milliseconds = (locationList[i].timestamp - startTime)
+                            // convert milliseconds in minutes and seconds
+                            val minutes = milliseconds / 60000
+                            val seconds = (milliseconds % 60000) / 1000
+                            val timeString = "$minutes:$seconds"
+                            binding.tvTimestamp.text = timeString
                         }
                         animatorList.add(animator)
                     }
