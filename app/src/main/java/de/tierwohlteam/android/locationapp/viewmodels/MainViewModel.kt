@@ -37,7 +37,7 @@ class MainViewModel @Inject constructor(
                 for (i in 1..6) {
                     timeStamp += i * Random.nextLong(200, 500)
                     val location = Location(
-                        x = (i * 10).toDouble(), y = (i * 20).toDouble(),
+                        x = (i * 10).toFloat(), y = (i * 20).toFloat(),
                         timestamp = timeStamp)
                     repository.insertLocation(location)
                 }
