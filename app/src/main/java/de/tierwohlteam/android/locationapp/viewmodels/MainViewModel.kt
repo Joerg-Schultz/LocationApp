@@ -34,10 +34,10 @@ class MainViewModel @Inject constructor(
             try {
                 repository.deleteLocations();
                 var timeStamp = 0L
-                for (i in 1..10) {
+                for (i in 1..6) {
                     timeStamp += i * Random.nextLong(200, 500)
                     val location = Location(
-                        x = (i * 50).toDouble(), y = (i * 100).toDouble(),
+                        x = (i * 10).toDouble(), y = (i * 20).toDouble(),
                         timestamp = timeStamp)
                     repository.insertLocation(location)
                 }

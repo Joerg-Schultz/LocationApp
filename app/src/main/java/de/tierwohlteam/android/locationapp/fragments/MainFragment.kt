@@ -2,7 +2,6 @@ package de.tierwohlteam.android.locationapp.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import de.tierwohlteam.android.locationapp.R
 import de.tierwohlteam.android.locationapp.databinding.FragmentMainBinding
+import de.tierwohlteam.android.locationapp.models.Location
 import de.tierwohlteam.android.locationapp.others.Status
 import de.tierwohlteam.android.locationapp.viewmodels.MainViewModel
 import kotlinx.coroutines.launch
@@ -56,24 +56,38 @@ class MainFragment : Fragment() {
 
         binding.btnReplay.setOnClickListener {
             lifecycleScope.launch {
-                val locationList = viewModel.getLocations().toMutableList()
+                val locationList = viewModel.getLocations()
                 if (locationList.isNotEmpty()) {
+                    val scaleX = binding.imageView2.width / locationList.maxOf { it.x }
+                    val scaleY = binding.imageView2.height / locationList.maxOf { it.y }
+                    Log.d("MainFragment", "scaleX: $scaleX, scaleY: $scaleY")
                     val animatorList = mutableListOf<Animator>()
                     for (i in 0 until locationList.size - 1) {
-                        val startPoint = locationList[i]
-                        val endPoint = locationList[i + 1]
+                        // Get the start and end point of the animation
+                        // scaled by the scale factors
+                        val startPoint = Location(
+                            x = locationList[i].x * scaleX,
+                            y = locationList[i].y * scaleY,
+                            timestamp = locationList[i].timestamp
+                        )
+                        val endPoint = Location(
+                            x = locationList[i + 1].x * scaleX,
+                            y = locationList[i + 1].y * scaleY,
+                            timestamp = locationList[i + 1].timestamp
+                        )
                         val animator = ValueAnimator.ofFloat(0f, 1f)
-                        //val animator = ObjectAnimator.ofFloat(0f, 1f)
-                        animator.duration = endPoint.timestamp - startPoint.timestamp // Set the duration of each animation
+                        animator.duration =
+                            endPoint.timestamp - startPoint.timestamp // Set the duration of each animation
                         animator.addUpdateListener { valueAnimator ->
                             val fraction = valueAnimator.animatedFraction
-                            val x = startPoint.x + fraction * (endPoint.x - startPoint.x)
-                            val y = startPoint.y + fraction * (endPoint.y - startPoint.y)
+                            val x = startPoint.x + (fraction * (endPoint.x - startPoint.x))
+                            val y = startPoint.y + (fraction * (endPoint.y - startPoint.y))
                             // Update the position of the circle
-                            binding.circleView.setCircle(x.toFloat(), y.toFloat(),50f)
+                            binding.circleView.setCircle(x.toFloat(), y.toFloat(), 10f)
                         }
                         animatorList.add(animator)
                     }
+                    // Play all animations in sequence
                     val animatorSet = AnimatorSet()
                     animatorSet.playSequentially(animatorList)
                     animatorSet.start()
