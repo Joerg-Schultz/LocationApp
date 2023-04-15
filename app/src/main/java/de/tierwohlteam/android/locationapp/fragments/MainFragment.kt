@@ -63,6 +63,7 @@ class MainFragment : Fragment() {
                     Log.d("MainFragment", "scaleX: $scaleX, scaleY: $scaleY")
                     val animatorList = mutableListOf<Animator>()
                     for (i in 0 until locationList.size - 1) {
+
                         // Get the start and end point of the animation
                         // scaled by the scale factors
                         val startPoint = Location(
@@ -84,6 +85,8 @@ class MainFragment : Fragment() {
                             val y = startPoint.y + (fraction * (endPoint.y - startPoint.y))
                             // Update the position of the circle
                             binding.circleView.setCircle(x.toFloat(), y.toFloat(), 10f)
+                            binding.tvXCoord.text = locationList[i].x.toString()
+                            binding.tvYCoord.text = locationList[i].y.toString()
                         }
                         animatorList.add(animator)
                     }
@@ -91,6 +94,8 @@ class MainFragment : Fragment() {
                     val animatorSet = AnimatorSet()
                     animatorSet.playSequentially(animatorList)
                     animatorSet.start()
+                    binding.tvXCoord.text = "X-Coord"
+                    binding.tvYCoord.text = "Y-Coord"
                 }
             }
         }
