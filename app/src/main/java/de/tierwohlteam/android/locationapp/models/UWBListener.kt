@@ -7,7 +7,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class UWBListener(private val repository: LocationAppRepository) : BTTool() {
+
+    var recording = false
     override suspend fun toolReadAction(msg: Message) {
+        if (!recording) return
         val msgText = msg.obj.toString()
 
         Log.d("UWB",msgText)

@@ -49,9 +49,24 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         subscribeToObservers()
 
+        binding.btnRecord.text = "Connect"
         binding.btnRecord.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch {
-                viewModel.record()
+                if (viewModel.uwbListener == null) {
+                    context?.let { it1 ->
+                        connectDialog(it1)
+                    }
+                    binding.btnRecord.text = "Record"
+                } else {
+                    if(viewModel.uwbListener!!.recording) {
+                        viewModel.uwbListener!!.recording = false;
+                        binding.btnRecord.text = "Record"
+                    } else {
+                        viewModel.deleteLocations()
+                        viewModel.uwbListener!!.recording = true;
+                        binding.btnRecord.text = "Stop"
+                    }
+                }
             }
         }
 
@@ -64,6 +79,7 @@ class MainFragment : Fragment() {
                 if (locationList.isNotEmpty()) {
                     val scaleX = binding.imageView2.width / locationList.maxOf { it.x }
                     val scaleY = binding.imageView2.height / locationList.maxOf { it.y }
+                    val startTime = locationList.minOf { it.timestamp }
                     Log.d("MainFragment", "scaleX: $scaleX, scaleY: $scaleY")
                     val animatorList = mutableListOf<Animator>()
                     for (i in 0 until locationList.size - 1) {
@@ -91,7 +107,7 @@ class MainFragment : Fragment() {
                             binding.circleView.setCircle(x.toFloat(), y.toFloat(), 10f)
                             binding.tvXCoord.text = locationList[i].x.toString()
                             binding.tvYCoord.text = locationList[i].y.toString()
-                            binding.tvTimestamp.text = locationList[i].timestamp.toString()
+                            binding.tvTimestamp.text = (locationList[i].timestamp - startTime).toString()
                         }
                         animatorList.add(animator)
                     }
@@ -113,7 +129,7 @@ class MainFragment : Fragment() {
     private fun subscribeToObservers() {
         //Did the insert work?
         lifecycleScope.launch {
-           viewModel.insertLocationFlow.collect {
+           viewModel.deleteLocationFlow.collect {
                 when (it.status) {
                     Status.ERROR -> {
                         Snackbar.make(
@@ -127,7 +143,7 @@ class MainFragment : Fragment() {
                     Status.SUCCESS -> {
                         Snackbar.make(
                             binding.root,
-                            "Locations gespeichert",
+                            "Locations deleted, Start recording",
                             //resources.getString(R.string.saved_rating),
                             Snackbar.LENGTH_LONG
                         ).setAnchorView(R.id.btn_record)
@@ -148,11 +164,16 @@ class MainFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             uwbListener.connectionMessage.collect {
                 Snackbar.make(requireView(), it, Snackbar.LENGTH_LONG).show()
+                if (it.contains("Failed")) {
+                    viewModel.uwbListener = null
+                    binding.btnRecord.text = "Connect"
+                }
             }
         }
         MaterialAlertDialogBuilder(context)
             .setTitle(resources.getString(R.string.paired))
             .setNeutralButton(resources.getString(R.string.cancel)) { dialog, which ->
+                binding.btnRecord.text = "Connect"
             }
             .setPositiveButton(resources.getString(R.string.ok)) { dialog, which ->
                 selectedDevice?.let {
