@@ -34,16 +34,18 @@
             android:text="Record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/btn_record"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            android:backgroundTint="@color/accent"
+    />
     <TextView
-            android:text="X-Coord"
+            android:text="X "
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/tv_XCoord"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="16dp" app:layout_constraintStart_toEndOf="@+id/btn_replay"
             android:layout_marginStart="16dp"/>
     <TextView
-            android:text="Y-Coord"
+            android:text="Y "
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/tv_YCoord"
             app:layout_constraintBottom_toBottomOf="parent"
