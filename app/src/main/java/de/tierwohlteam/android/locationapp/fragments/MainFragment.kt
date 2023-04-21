@@ -70,11 +70,11 @@ class MainFragment : Fragment() {
             }
         }
 
-        binding.imageView2.setImageResource(R.drawable.roedelsee)
+        binding.imageView2.setImageResource(R.drawable.baseball)
         binding.circleView.bringToFront()
 
         binding.btnReplay.setOnClickListener {
-            val smoothingFactor = 3
+            val smoothingFactor = 5
             lifecycleScope.launch {
                 val locationList = viewModel.getLocations()
                 if (locationList.isNotEmpty()) {
@@ -87,8 +87,12 @@ class MainFragment : Fragment() {
                         Location(x= smoothedX, y=smoothedY, timestamp=timestamp)
                     }
 
-                    val scaleX = binding.imageView2.width / locationList.maxOf { it.x }
-                    val scaleY = binding.imageView2.height / locationList.maxOf { it.y }
+                    //val scaleX = binding.imageView2.width / locationList.maxOf { it.x }
+                    val scaleX = binding.imageView2.width / 10
+                    //val scaleY = binding.imageView2.height / locationList.maxOf { it.y }
+                    val scaleY = binding.imageView2.height / 14
+                    val shiftX = 50
+                    val shiftY = 10
                     val startTime = locationList.minOf { it.timestamp }
                     Log.d("MainFragment", "scaleX: $scaleX, scaleY: $scaleY")
                     val animatorList = mutableListOf<Animator>()
@@ -96,13 +100,13 @@ class MainFragment : Fragment() {
                         // Get the start and end point of the animation
                         // scaled by the scale factors
                         val startPoint = Location(
-                            x = smoothedLocations[i].x * scaleX,
-                            y = smoothedLocations[i].y * scaleY,
+                            x = smoothedLocations[i].x * scaleX + shiftX,
+                            y = smoothedLocations[i].y * scaleY + shiftY,
                             timestamp = smoothedLocations[i].timestamp
                         )
                         val endPoint = Location(
-                            x = smoothedLocations[i + 1].x * scaleX,
-                            y = smoothedLocations[i + 1].y * scaleY,
+                            x = smoothedLocations[i + 1].x * scaleX + shiftX,
+                            y = smoothedLocations[i + 1].y * scaleY + shiftY,
                             timestamp = smoothedLocations[i + 1].timestamp
                         )
                         val animator = ValueAnimator.ofFloat(0f, 1f)

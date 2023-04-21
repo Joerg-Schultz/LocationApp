@@ -21,14 +21,14 @@
             android:layout_height="wrap_content" android:id="@+id/btn_replay"
             app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent"/>
     <ImageView
-            android:src="@drawable/roedelsee"
+            android:src="@drawable/baseball"
             android:layout_width="0dp"
             android:layout_height="0dp" android:id="@+id/imageView2"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/circleView"
             app:layout_constraintVertical_bias="0.52" app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:scaleType="centerCrop" android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
+            android:scaleType="centerInside" android:layout_marginEnd="8dp" android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"/>
     <Button
             android:text="Record"
